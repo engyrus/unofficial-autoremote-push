@@ -1,0 +1,40 @@
+{
+  "title": "AutoRemote Push (Unofficial)",
+  "name": "unofficial-autoremote-push",
+  "version": "1.0.1",
+  "description": "Pushes links to your Android device via AutoRemote using a toolbar button or the context menu. Not affiliated with João Dias (joaomgcd), author of AutoRemote.",
+  "main": "index.js",
+  "author": "Engyrus (Jerry Kindall)",
+  "icon": "resource://@unofficial-autoremote-push/data/icon-64.png",
+  "engines": {
+    "firefox": ">=38.0a1"
+  },
+  "license": "MIT",
+  "keywords": [
+    "AutoRemote"
+  ],
+  "permissions": ["private-browsing", "tabs", "notifications"],
+  "preferences": [
+    {
+        "name": "api",
+        "title": "AutoRemote API URL",
+        "description": "In this browser, open the goo.gl URL displayed by the AutoRemote app on your Android device, then paste your personal AutoRemote URL here. (This is filled in automagically the first time you visit your personal AutoRemote page.)",
+        "type": "string",
+        "value": ""
+    },
+    {
+        "name": "secure",
+        "title": "Force Secure Pushes",
+        "description": "Always use secure connection to push links to AutoRemote (rewrites API URL as https if necessary).",
+        "type": "bool",
+        "value": true
+    },
+    {
+        "name": "notify",
+        "title": "Desktop Notifications",
+        "description": "Show notifications on your desktop to confirm pushes and other actions.",
+        "type": "bool",
+        "value": true
+    }
+  ]
+}
