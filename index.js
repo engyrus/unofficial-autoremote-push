@@ -5,6 +5,8 @@
 // Jerry Kindall, engyrus@gmail.com, May 2016
 // www.engyrus.com for occasional blog (more and more occasional every day)
 
+DEBUG = false;
+
 var contextMenu = require("sdk/context-menu");
 var windows = require("sdk/windows").browserWindows;
 var tabs = require("sdk/tabs");
@@ -22,8 +24,7 @@ var myname = "AutoRemote Push (Unoffical)";
 // Used to identify your personal AutoRemote page
 var autoremote = /^https?:\/\/autoremotejoaomgcd.appspot.com\/\?key=/;
 
-// Flag to check to make sure we have a valid API URL.  Once we know we do,
-// we set it to false to avoid continually hitting the prefs API.
+// Used to avoid slowing down things too much when loading pages
 checkAPI = true;
 
 var icons = {
@@ -38,7 +39,7 @@ var iconsfaded = {
     "64": "./icon-64f.png"
 }
 
-// toolbar button
+// add toolbar button
 button = buttons.ActionButton({
   label: prefs.api ? label : "Set AutoRemote API",
   id: "b-" + itemid,
@@ -46,7 +47,7 @@ button = buttons.ActionButton({
   onClick: function () { pushURL(tabs.activeTab.url); }
 });
 
-// context menu for links and images
+// add context menu for links and images
 contextMenu.Item({
   label: label,
   context: contextMenu.SelectorContext("a[href], img[src]"),
@@ -54,7 +55,7 @@ contextMenu.Item({
   onMessage: pushURL
 });
 
-// context menu for pages
+// add context menu for pages
 contextMenu.Item({
   label: label,
   context: contextMenu.PageContext(),
@@ -66,8 +67,10 @@ contextMenu.Item({
 function addtabmenu(window) {
   let doc = viewFor(window).document;
   if (!doc.getElementById(itemid)) {
+    DEBUG && console.log(doc.getElementById("placesContext"));
     let menu = doc.getElementById("tabContextMenu");
     let item = doc.createElementNS(xulns, "menuseparator");
+    item.setAttribute("id", "s-" + itemid);
     menu.appendChild(item);
     item = doc.createElementNS(xulns, "menuitem");
     item.setAttribute("label", label);
@@ -84,19 +87,34 @@ for (let window of windows) {
 // and make sure it gets added to new windows too
 windows.on("open", addtabmenu);
 
-// Recognize the API URL
-tabs.on('ready', function(tab) {
-  let turl = tab.url;
-  if (checkAPI) {
-    if (prefs.api) {
-      checkAPI = false;
-    }
-    else if (autoremote.test(turl) && turl.indexOf("&") < 0) {
-      setAPI(turl);
-      checkAPI = false;
-    }
+// remove our tab menu item on disable/uninstall
+exports.onUnload = function() {
+  for (let window of windows) {
+    let doc = viewFor(window).document;
+    let item = doc.getElementById(itemid);
+    item && item.remove(); 
+    item = doc.getElementById("s-" + itemid);
+    item && item.remove();     
   }
-});
+};
+
+// Recognize the API URL (only if we haven't already)
+if (!prefs.api) {
+  tabs.on('ready', function(tab) {
+    let turl = tab.url;
+    if (checkAPI) {
+      if (prefs.api) {
+        checkAPI = false;
+      }
+      else if (autoremote.test(turl) && turl.indexOf("&") < 0) {
+        setAPI(turl);
+        checkAPI = false;
+      }
+    }
+  });
+} else {
+  checkAPI = false;
+};
 
 // Set the AutoRemote API URL
 function setAPI(apiurl) {
@@ -105,7 +123,7 @@ function setAPI(apiurl) {
   }
   button.icon = icons;  // make our icons nicer
   button.label = label;
-  console.log("API set to " + prefs.api);
+  DEBUG && console.log("API set to " + prefs.api);
   notify("Your AutoRemote API URL has been set and you may now push links from this browser to your Android device.");
 }
 
@@ -122,14 +140,14 @@ function pushURL(url) {
       }
       api = api.replace("/?", "/sendintent?") + "&intent=";
       request({url: api + encodeURIComponent(url), onComplete: function () { }}).get();
-      console.log("Pushed " + url);
+      DEBUG && console.log("Pushed " + url);
       notify("A link has been pushed to your device.\n\n" + url.split("/").slice(0, 3).join("/") + "/ ...");
     } else {
-      console.log("API URL not defined");
+      DEBUG && console.log("API URL not defined");
       notify("The AutoRemote API URL has not been set.\n\nOpen AutoRemote on your phone and go to the displayed goo.gl URL in this browser.");
     }
   } else {
-     console.log("Unsupported URL scheme");
+     DEBUG && console.log("Unsupported URL scheme");
   }
   return true;
 }
