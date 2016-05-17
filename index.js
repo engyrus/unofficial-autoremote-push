@@ -162,7 +162,6 @@ function pushURL(url) {
     } else if (api) {
       api = api.replace("/?", "/sendintent?") + "&intent=";
       request({url: api + encodeURIComponent(url)}).get();
-      // request({url: api + encodeURIComponent(url), onComplete: function () { }}).get();
       DEBUG && console.log("Pushed " + url);
       notify("A link has been pushed to your device.\n\n" + url.split("/").slice(0, 3).join("/") + "/ ...");
     }
@@ -179,6 +178,8 @@ function pushText(text) {
     if (api) {
       api = api.replace("/?", "/sendmessage?") + "&message=" + prefs.textcmd + "=:=";
       request({url: api + encodeURIComponent(text)}).get();
+      DEBUG && console.log("Pushed " + text);
+      notify("Text has been pushed to your device.\n\n" + text.slice(0, 40) + "...");
     }
   } else {
     DEBUG && console.log("No text selected"); 
