@@ -1,8 +1,8 @@
 {
   "title": "AutoRemote Push (Unofficial)",
   "name": "unofficial-autoremote-push",
-  "version": "1.0.2",
-  "description": "Pushes links to your Android device via AutoRemote using a toolbar button or the context menu. Not affiliated with João Dias (joaomgcd), author of AutoRemote.",
+  "version": "1.0.3",
+  "description": "Pushes links and text to your Android device via AutoRemote using a toolbar button or the context menu. Not affiliated with João Dias (joaomgcd), author of AutoRemote.",
   "main": "index.js",
   "author": "Engyrus (Jerry Kindall)",
   "icon": "resource://@unofficial-autoremote-push/data/icon-64.png",
@@ -21,6 +21,13 @@
         "description": "In this browser, open the goo.gl URL displayed by the AutoRemote app on your Android device, then paste your personal AutoRemote URL here. (This is filled in automagically the first time you visit your personal AutoRemote page.)",
         "type": "string",
         "value": ""
+    },
+    {
+        "name": "textcmd",
+        "title": "Command for Text Push",
+        "description": "The AutoRemote command that will be used for pushing text to your Android device.",
+        "type": "string",
+        "value": "fftext"
     },
     {
         "name": "secure",

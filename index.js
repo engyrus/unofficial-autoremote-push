@@ -99,38 +99,40 @@ exports.onUnload = function() {
 };
 
 // Recognize the API URL (only if we haven't already)
-if (!prefs.api) {
+if (prefs.api) {
+  checkAPI = false;
+} else {
   tabs.on('ready', function(tab) {
     let turl = tab.url;
     if (checkAPI) {
       if (prefs.api) {
         checkAPI = false;
       }
-      else if (autoremote.test(turl) && turl.indexOf("&") < 0) {
+      else if (autoremote.test(turl)) {
         setAPI(turl);
-        checkAPI = false;
       }
     }
   });
-} else {
-  checkAPI = false;
 };
 
 // Set the AutoRemote API URL
 function setAPI(apiurl) {
+  apiurl = apiurl.split("&")[0];
   if (prefs.secure) {
-    prefs.api = apiurl.replace("http://", "https://");
+    apiurl = apiurl.replace("http://", "https://");
   }
+  prefs.api = apiurl;
   button.icon = icons;  // make our icons nicer
   button.label = label;
+  checkAPI = false;
   DEBUG && console.log("API set to " + prefs.api);
   notify("Your AutoRemote API URL has been set and you may now push links from this browser to your Android device.");
 }
 
-// Push a URL to the device using the AutoRemote API
+// Push a URL to the device
 function pushURL(url) {
   if (url && url.indexOf("about:") != 0) {
-    if (autoremote.test(url) && url.indexOf("&") < 0) {
+    if (autoremote.test(url)) {
       setAPI(url);
     } else if (prefs.api) {
       var api = prefs.api;
@@ -147,7 +149,27 @@ function pushURL(url) {
       notify("The AutoRemote API URL has not been set.\n\nOpen AutoRemote on your phone and go to the displayed goo.gl URL in this browser.");
     }
   } else {
-     DEBUG && console.log("Unsupported URL scheme");
+    DEBUG && console.log("Unsupported URL scheme");
+  }
+  return true;
+}
+
+// Push text to the device
+function pushText(text) {
+  if (text) {
+    if (prefs.api) {
+      var api = prefs.api;
+      if (prefs.secure && api.indexOf("https://") != 0) {
+        api = api.replace("http://", "https://");
+        prefs.api = api;
+      }
+    
+    } else {
+      DEBUG && console.log("API URL not defined");
+      notify("The AutoRemote API URL has not been set.\n\nOpen AutoRemote on your phone and go to the displayed goo.gl URL in this browser.");
+    }
+  } else {
+    DEBUG && console.log("No text selected"); 
   }
   return true;
 }
