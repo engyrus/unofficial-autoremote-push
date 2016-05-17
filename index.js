@@ -15,6 +15,7 @@ var viewFor = require("sdk/view/core").viewFor;
 var request = require("sdk/request").Request;
 var prefs = require('sdk/simple-prefs').prefs;
 var notifications = require("sdk/notifications");
+var setTimeout = require("sdk/timers").setTimeout;
 
 var xulns = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 var label = "Push via AutoRemote";
@@ -129,44 +130,45 @@ function setAPI(apiurl) {
   notify("Your AutoRemote API URL has been set and you may now push links from this browser to your Android device.");
 }
 
+// Get the AutoRemote API URL from the prefs
+function getAPI() {
+  var api = prefs.api;
+  if (api) {
+    if (prefs.secure && api.indexOf("https://") != 0) {
+      api = api.replace("http://", "https://");
+      prefs.api = api;  
+    }
+  } else {
+      DEBUG && console.log("API URL not defined");
+      notify("The AutoRemote API URL has not been set.\n\nOpen AutoRemote on your phone and go to the displayed goo.gl URL in this browser.");
+  }
+  return api;
+}
+
 // Push a URL to the device
 function pushURL(url) {
+  var api = getAPI();
   if (url && url.indexOf("about:") != 0) {
     if (autoremote.test(url)) {
       setAPI(url);
-    } else if (prefs.api) {
-      var api = prefs.api;
-      if (prefs.secure && api.indexOf("https://") != 0) {
-        api = api.replace("http://", "https://");
-        prefs.api = api;
-      }
+    } else if (api) {
       api = api.replace("/?", "/sendintent?") + "&intent=";
       request({url: api + encodeURIComponent(url), onComplete: function () { }}).get();
       DEBUG && console.log("Pushed " + url);
       notify("A link has been pushed to your device.\n\n" + url.split("/").slice(0, 3).join("/") + "/ ...");
-    } else {
-      DEBUG && console.log("API URL not defined");
-      notify("The AutoRemote API URL has not been set.\n\nOpen AutoRemote on your phone and go to the displayed goo.gl URL in this browser.");
     }
   } else {
-    DEBUG && console.log("Unsupported URL scheme");
+    DEBUG && console.log("Unsupported URL scheme 'about'");
   }
   return true;
 }
 
 // Push text to the device
 function pushText(text) {
+  var api = getAPI();
   if (text) {
-    if (prefs.api) {
-      var api = prefs.api;
-      if (prefs.secure && api.indexOf("https://") != 0) {
-        api = api.replace("http://", "https://");
-        prefs.api = api;
-      }
-    
-    } else {
-      DEBUG && console.log("API URL not defined");
-      notify("The AutoRemote API URL has not been set.\n\nOpen AutoRemote on your phone and go to the displayed goo.gl URL in this browser.");
+    if (api) {
+      
     }
   } else {
     DEBUG && console.log("No text selected"); 
@@ -174,7 +176,7 @@ function pushText(text) {
   return true;
 }
 
-// Display a notification
+// Display a notification or, if that's turned off, flash our toolbar icon
 function notify(text) {
   if (prefs.notify) {
     notifications.notify({
@@ -182,5 +184,13 @@ function notify(text) {
       text: text,
       iconURL: "./icon-64.png"
     });
+  } else {
+    var curicon = button.icon;
+    button.icon = iconsfaded;
+    setTimeout(function () { button.icon = icons;
+      setTimeout(function () { button.icon = iconsfaded; 
+        setTimeout(function () { button.icon =  curicon; }, 500);
+      }, 500);
+    }, 500);
   }
 }
