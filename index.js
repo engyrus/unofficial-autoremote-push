@@ -29,15 +29,19 @@ var autoremote = /^https?:\/\/autoremotejoaomgcd.appspot.com\/\?key=/;
 checkAPI = true;
 
 var icons = {
-    "16": "./icon-16.png",
-    "32": "./icon-32.png",
-    "64": "./icon-64.png"
+  "16": "./icon-16.png",
+  "32": "./icon-32.png",
+  "64": "./icon-64.png"
 }
 
 var iconsfaded = {
-    "16": "./icon-16f.png",
-    "32": "./icon-32f.png",
-    "64": "./icon-64f.png"
+  "16": "./icon-16f.png",
+  "32": "./icon-32f.png",
+  "64": "./icon-64f.png"
+}
+
+var blank = {
+  "16": "./blank-16.png"
 }
 
 // add toolbar button
@@ -196,12 +200,11 @@ function notify(text) {
       iconURL: "./icon-64.png"
     });
   } else {
-    var curicon = button.icon;
-    button.icon = iconsfaded;
-    setTimeout(function () { button.icon = icons;
-      setTimeout(function () { button.icon = iconsfaded; 
-        setTimeout(function () { button.icon =  curicon; }, 500);
-      }, 500);
-    }, 500);
+    flashIcon(button.icon, 5);
   }
+}
+
+function flashIcon(baseicon, flashes) {
+  button.icon = ((button.icon["16"] == baseicon["16"]) ? blank : baseicon); 
+  if (flashes) setTimeout(function () { flashIcon(baseicon, flashes - 1); }, 250);
 }
