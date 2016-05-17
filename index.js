@@ -64,13 +64,21 @@ contextMenu.Item({
   onMessage: pushURL
 });
 
+// add context menu for selection
+contextMenu.Item({
+  label: label,
+  context: contextMenu.SelectionContext(),
+  contentScript: 'self.on("click", function(node) { self.postMessage(window.getSelection().toString()) })',
+  onMessage: pushText
+});
+
 // add context menu for tabs
 function addtabmenu(window) {
-  let doc = viewFor(window).document;
+  var doc = viewFor(window).document;
   if (!doc.getElementById(itemid)) {
     DEBUG && console.log(doc.getElementById("placesContext"));
-    let menu = doc.getElementById("tabContextMenu");
-    let item = doc.createElementNS(xulns, "menuseparator");
+    var menu = doc.getElementById("tabContextMenu");
+    var item = doc.createElementNS(xulns, "menuseparator");
     item.setAttribute("id", "s-" + itemid);
     menu.appendChild(item);
     item = doc.createElementNS(xulns, "menuitem");
@@ -82,7 +90,7 @@ function addtabmenu(window) {
 }
 
 // now add the tab context menu to all existing windows
-for (let window of windows) {
+for (var window of windows) {
   addtabmenu(window);
 }
 // and make sure it gets added to new windows too
@@ -90,9 +98,9 @@ windows.on("open", addtabmenu);
 
 // remove our tab menu item on disable/uninstall
 exports.onUnload = function() {
-  for (let window of windows) {
-    let doc = viewFor(window).document;
-    let item = doc.getElementById(itemid);
+  for (var window of windows) {
+    var doc = viewFor(window).document;
+    var item = doc.getElementById(itemid);
     item && item.remove(); 
     item = doc.getElementById("s-" + itemid);
     item && item.remove();     
@@ -104,7 +112,7 @@ if (prefs.api) {
   checkAPI = false;
 } else {
   tabs.on('ready', function(tab) {
-    let turl = tab.url;
+    var turl = tab.url;
     if (checkAPI) {
       if (prefs.api) {
         checkAPI = false;
@@ -153,7 +161,8 @@ function pushURL(url) {
       setAPI(url);
     } else if (api) {
       api = api.replace("/?", "/sendintent?") + "&intent=";
-      request({url: api + encodeURIComponent(url), onComplete: function () { }}).get();
+      request({url: api + encodeURIComponent(url)}).get();
+      // request({url: api + encodeURIComponent(url), onComplete: function () { }}).get();
       DEBUG && console.log("Pushed " + url);
       notify("A link has been pushed to your device.\n\n" + url.split("/").slice(0, 3).join("/") + "/ ...");
     }
@@ -168,7 +177,8 @@ function pushText(text) {
   var api = getAPI();
   if (text) {
     if (api) {
-      
+      api = api.replace("/?", "/sendmessage?") + "&message=" + prefs.textcmd + "=:=";
+      request({url: api + encodeURIComponent(text)}).get();
     }
   } else {
     DEBUG && console.log("No text selected"); 
