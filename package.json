@@ -25,9 +25,16 @@
     {
         "name": "textcmd",
         "title": "Command for Text Push",
-        "description": "The AutoRemote command that will be used for pushing text to your Android device.",
+        "description": "The AutoApps command that will be used for pushing text to your Android device. You will need a Tasker profile to react to this command.",
         "type": "string",
         "value": "fftext"
+    },
+    {
+        "name": "password",
+        "title": "Password",
+        "description": "The password set for AutoRemote on your device. (Only required for pushing text.) This is NOT securely stored in Firefox.",
+        "type": "string",
+        "value": ""
     },
     {
         "name": "secure",
