@@ -5,7 +5,7 @@
 // Jerry Kindall, engyrus@gmail.com, May 2016
 // www.engyrus.com for occasional blog (more and more occasional every day)
 
-// TODOS: add to Places context menu, error message when push fails
+// TODOS: add to Places context menu
 
 DEBUG = false;
 
