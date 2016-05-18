@@ -25,14 +25,21 @@
     {
         "name": "textcmd",
         "title": "Command for Text Push",
-        "description": "The AutoApps command that will be used for pushing text to your Android device. You will need a Tasker profile to react to this command.",
+        "description": "The AutoApps command that will be used for pushing text to your Android device. Use a Tasker profile to react to this command.",
         "type": "string",
         "value": "fftext"
     },
     {
+        "name": "linkcmd",
+        "title": "Command for Link Push",
+        "description": "The AutoApps command that will be used for pushing links to your Android device. Use a Tasker profile to react to this command. Leave blank to have the link opened in your mobile browser.",
+        "type": "string",
+        "value": ""
+    },
+    {
         "name": "password",
         "title": "Password",
-        "description": "The password set for AutoRemote on your device, if any. (Only required for pushing text.)",
+        "description": "The password set for AutoRemote on your device, if any. Not required for normal link pushing. When changing, delete and retype.",
         "type": "string",
         "value": ""
     },

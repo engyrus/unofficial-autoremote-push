@@ -5,6 +5,8 @@
 // Jerry Kindall, engyrus@gmail.com, May 2016
 // www.engyrus.com for occasional blog (more and more occasional every day)
 
+// TODOS: add to Places context menu, error message when push fails
+
 DEBUG = false;
 
 var contextMenu = require("sdk/context-menu");
@@ -162,6 +164,7 @@ function getAPI() {
 
 // Push a URL to the device
 function pushURL(url) {
+  if (prefs.linkcmd) return pushText(url, prefs.linkcmd);
   var api = getAPI();
   if (url && url.indexOf("about:") != 0) {
     if (autoremote.test(url)) {
@@ -170,9 +173,17 @@ function pushURL(url) {
       api = api.replace("/?", "/sendintent?") + "&intent=";
       api += encodeURIComponent(url);
       if (prefs.password) api += "&password=" + encodeURIComponent(prefs.password);
-      request({url: api}).get();
-      DEBUG && console.log("Pushed " + url);
-      notify("A link has been pushed to your device.\n\n" + url.split("/").slice(0, 3).join("/") + "/ ...");
+      try {
+        request({url: api,
+          onComplete: function() {
+            notify("A link has been pushed to your device.\n\n" + url.split("/").slice(0, 3).join("/") + "/ ...");
+            DEBUG && console.log("Pushed " + url);
+          }
+        }).get();
+      } catch (e) {
+        notify("ERROR pushing a link to your device.\n\n" + url.split("/").slice(0, 3).join("/") + "/ ...");
+        DEBUG && console.log("Error pushing " + url + '\n\n' + e);      
+      }
     }
   } else {
     DEBUG && console.log("Unsupported URL scheme 'about'");
@@ -180,27 +191,34 @@ function pushURL(url) {
   return true;
 }
 
-// Push text to the device
-function pushText(text) {
+// Push text to the device. Optional cmd may be passed (for pushing links using the messaging API)
+function pushText(text, cmd) {
   var api = getAPI();
   if (text) {
     if (api) {
-      api = api.replace("/?", "/sendmessage?");
-      api += "&message=" + prefs.textcmd + "=:=" + encodeURIComponent(text);
+      send = function (cred) {
+        try {
+          api = api.replace("/?", "/sendmessage?");
+          api += "&message=" + (cmd || prefs.textcmd) + "=:=" + encodeURIComponent(text);
+          if (cred.password) api += "&password=" + encodeURIComponent(cred.password);
+          request({url: api,
+            onComplete: function() {
+              notify("Text has been pushed to your device.\n\n" + text.slice(0, 40) + "...");
+              DEBUG && console.log("Pushed " + text);
+            }
+          }).get();
+        } catch (e) {
+          notify("ERROR pushing a link to your device.\n\n" + url.split("/").slice(0, 3).join("/") + "/ ...");
+          DEBUG && console.log("Error pushing " + url + '\n\n' + e);      
+        }
+      };
       if (prefs.password) {   // retrieve the shadowed password
         passwords.search({url: self.uri,
-          onComplete: function (creds) {
-            creds.forEach(function (cred) {
-              var papi = api + "&password=" + encodeURIComponent(cred.password);
-              request({url: papi}).get();
-            });
-          }
+          onComplete: function (creds) { creds.forEach(send) }
         });
       } else {
-        request({url: api}).get();
+        send({});
       }
-      DEBUG && console.log("Pushed " + text);
-      notify("Text has been pushed to your device.\n\n" + text.slice(0, 40) + "...");
     }
   } else {
     DEBUG && console.log("No text selected"); 
@@ -232,17 +250,21 @@ function bullets(text) { return '\u2022'.repeat(text.length == undefined ? text 
 
 timer = null;
 
-// Handle password field in prefs by masking with bullets
+// Store password securely as a credential; display mask of password in prefs
+// May I just mention for the record that an asynchronous password API is a giant pain?
 pref.on("password", function () {
   if (timer != null) timers.clearTimeout(timer);
   var pass = prefs.password;
-  if (pass != bullets(pass)) {
+  if (!(pass && pass == bullets(pass))) {
+    var store = function() { if (pass) passwords.store({realm: "AutoRemote API", username: "autoremote", password: pass}); }
     timer = timers.setTimeout(function() {
       passwords.search({
         url: self.uri, username: "autoremote",
-        onComplete: function (creds) { 
-          creds.forEach(passwords.remove);
-          passwords.store({realm: "AutoRemote API", username: "autoremote", password: pass});
+        onComplete: function (creds) {
+          creds.forEach(function (cred) { passwords.remove({
+            realm: cred.realm, username: cred.username, password: cred.password, onComplete: store
+          }) });
+          if (!creds.length) store();
           prefs.password = bullets(pass);
         }});
     }, 3000);
@@ -253,6 +275,3 @@ pref.on("password", function () {
 pref.on("api", function() {
   if (autoremote.test(prefs.api)) setAPI(prefs.api);
 });
-
-prefs.password = "apple";
-setAPI("https://autoremotejoaomgcd.appspot.com/?key=APA91bEv4-zWHV8SN2lTbtM82jQ8EIa86qlr38vBZAYoCnSpj8bNzsrF2FtHmt3fYJsfNvUK8-_eeBsX77JTdVFJhS6B2HqUptEeWJpSAhEsaQWyL2jMz4tROBkpPrpaK8SHWOvBsoYh");
