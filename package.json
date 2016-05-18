@@ -32,7 +32,7 @@
     {
         "name": "password",
         "title": "Password",
-        "description": "The password set for AutoRemote on your device. (Only required for pushing text.) This is NOT securely stored in Firefox.",
+        "description": "The password set for AutoRemote on your device, if any. (Only required for pushing text.)",
         "type": "string",
         "value": ""
     },

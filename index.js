@@ -13,9 +13,12 @@ var tabs = require("sdk/tabs");
 var buttons = require("sdk/ui/button/action");
 var viewFor = require("sdk/view/core").viewFor;
 var request = require("sdk/request").Request;
-var prefs = require('sdk/simple-prefs').prefs;
+var pref = require("sdk/simple-prefs");
+var prefs = pref.prefs;
 var notifications = require("sdk/notifications");
-var setTimeout = require("sdk/timers").setTimeout;
+var timers = require("sdk/timers");
+var passwords = require("sdk/passwords");
+var self = require("sdk/self");
 
 var xulns = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 var label = "Push via AutoRemote";
@@ -139,7 +142,7 @@ function setAPI(apiurl) {
   button.label = label;
   checkAPI = false;
   DEBUG && console.log("API set to " + prefs.api);
-  notify("Your AutoRemote API URL has been set and you may now push links from this browser to your Android device.");
+  notify("Your AutoRemote API URL has been set and you may now push links and text from this browser to your Android device.");
 }
 
 // Get the AutoRemote API URL from the prefs
@@ -184,8 +187,18 @@ function pushText(text) {
     if (api) {
       api = api.replace("/?", "/sendmessage?");
       api += "&message=" + prefs.textcmd + "=:=" + encodeURIComponent(text);
-      if (prefs.password) api += "&password=" + encodeURIComponent(prefs.password);
-      request({url: api}).get();
+      if (prefs.password) {   // retrieve the shadowed password
+        passwords.search({url: self.uri,
+          onComplete: function (creds) {
+            creds.forEach(function (cred) {
+              var papi = api + "&password=" + encodeURIComponent(cred.password);
+              request({url: papi}).get();
+            });
+          }
+        });
+      } else {
+        request({url: api}).get();
+      }
       DEBUG && console.log("Pushed " + text);
       notify("Text has been pushed to your device.\n\n" + text.slice(0, 40) + "...");
     }
@@ -208,7 +221,38 @@ function notify(text) {
   }
 }
 
+// flash our toolbar icon
 function flashIcon(baseicon, flashes) {
   button.icon = ((button.icon["16"] == baseicon["16"]) ? blank : baseicon); 
-  if (flashes) setTimeout(function () { flashIcon(baseicon, flashes - 1); }, 250);
+  if (flashes) timers.setTimeout(function () { flashIcon(baseicon, flashes - 1); }, 250);
 }
+
+// return a string of bullets the same length as a string; may also pass integer
+function bullets(text) { return '\u2022'.repeat(text.length == undefined ? text : text.length); }
+
+timer = null;
+
+// Handle password field in prefs by masking with bullets
+pref.on("password", function () {
+  if (timer != null) timers.clearTimeout(timer);
+  var pass = prefs.password;
+  if (pass != bullets(pass)) {
+    timer = timers.setTimeout(function() {
+      passwords.search({
+        url: self.uri, username: "autoremote",
+        onComplete: function (creds) { 
+          creds.forEach(passwords.remove);
+          passwords.store({realm: "AutoRemote API", username: "autoremote", password: pass});
+          prefs.password = bullets(pass);
+        }});
+    }, 3000);
+  }
+});
+
+// Handle editing of API URL in preferences
+pref.on("api", function() {
+  if (autoremote.test(prefs.api)) setAPI(prefs.api);
+});
+
+prefs.password = "apple";
+setAPI("https://autoremotejoaomgcd.appspot.com/?key=APA91bEv4-zWHV8SN2lTbtM82jQ8EIa86qlr38vBZAYoCnSpj8bNzsrF2FtHmt3fYJsfNvUK8-_eeBsX77JTdVFJhS6B2HqUptEeWJpSAhEsaQWyL2jMz4tROBkpPrpaK8SHWOvBsoYh");
