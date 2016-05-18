@@ -32,7 +32,7 @@
     {
         "name": "linkcmd",
         "title": "Command for Link Push",
-        "description": "The AutoApps command that will be used for pushing links to your Android device. Use a Tasker profile to react to this command. Leave blank to have the link opened in your mobile browser.",
+        "description": "The AutoApps command that will be used for pushing links to your Android device. Use a Tasker profile to react to this command. Leave blank to have the link opened in your mobile browser as usual.",
         "type": "string",
         "value": ""
     },

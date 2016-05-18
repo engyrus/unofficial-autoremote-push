@@ -273,5 +273,9 @@ pref.on("password", function () {
 
 // Handle editing of API URL in preferences
 pref.on("api", function() {
-  if (autoremote.test(prefs.api)) setAPI(prefs.api);
+  if (prefs.api && autoremote.test(prefs.api)) { 
+    setAPI(prefs.api);
+  } else {
+    prefs.api = "";   // only allow paste of valid API URL
+  }
 });
