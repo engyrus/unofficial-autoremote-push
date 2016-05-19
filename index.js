@@ -1,11 +1,14 @@
 // Unofficial AutoRemote add-on for Firefox
+//
 // Provides toolbar button and context menu items for pushing 
-// page and image links to your Android device via AutoRemote.
+// links and text to your Android device via AutoRemote.
 
-// Jerry Kindall, engyrus@gmail.com, May 2016
-// www.engyrus.com for occasional blog (more and more occasional every day)
+// Jerry Kindall, Engyrus - engyrus@gmail.com
+// www.engyrus.com (more and more occasional blogging every day)
 
-// TODOS: add to Places context menu
+// Not affiliated with João Dias, author of AutoRemote
+
+// TODOS: add context menu item to Places context menu
 
 DEBUG = false;
 
@@ -23,23 +26,20 @@ var passwords = require("sdk/passwords");
 var self = require("sdk/self");
 
 var xulns = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
-var label = "Push via AutoRemote";
 var itemid = "unofficial-autoremote-push";
 var myname = "AutoRemote Push (Unoffical)";
+var bullet = '\u2022';
 
-// Used to identify your personal AutoRemote page
+// Used to identify personal AutoRemote page
 var autoremote = /^https?:\/\/autoremotejoaomgcd.appspot.com\/\?key=/;
 
-// Used to avoid slowing down things too much when loading pages
-checkAPI = true;
-
-var icons = {
+var enabled = {
   "16": "./icon-16.png",
   "32": "./icon-32.png",
   "64": "./icon-64.png"
 }
 
-var iconsfaded = {
+var disabled = {
   "16": "./icon-16f.png",
   "32": "./icon-32f.png",
   "64": "./icon-64f.png"
@@ -49,17 +49,21 @@ var blank = {
   "16": "./blank-16.png"
 }
 
+function label(item) {
+  return "Push $ via AutoRemote".replace("$", item)
+}
+
 // add toolbar button
 button = buttons.ActionButton({
-  label: prefs.api ? label : "Set AutoRemote API",
+  label: prefs.api ? label("page") : "Set AutoRemote API",
   id: "b-" + itemid,
-  icon: prefs.api ? icons : iconsfaded,
+  icon: prefs.api ? enabled : disabled,
   onClick: function () { pushURL(tabs.activeTab.url); }
 });
 
 // add context menu for links and images
 contextMenu.Item({
-  label: label,
+  label: label("link"),
   context: contextMenu.SelectorContext("a[href], img[src]"),
   contentScript: 'self.on("click", function(node) { self.postMessage(node.src || node.href) })',
   onMessage: pushURL
@@ -67,7 +71,7 @@ contextMenu.Item({
 
 // add context menu for pages
 contextMenu.Item({
-  label: label,
+  label: label("page"),
   context: contextMenu.PageContext(),
   contentScript: 'self.on("click", function(node) { self.postMessage(document.location.href) })',
   onMessage: pushURL
@@ -75,7 +79,7 @@ contextMenu.Item({
 
 // add context menu for selection
 contextMenu.Item({
-  label: label,
+  label: label("text"),
   context: contextMenu.SelectionContext(),
   contentScript: 'self.on("click", function(node) { self.postMessage(window.getSelection().toString()) })',
   onMessage: pushText
@@ -87,11 +91,8 @@ function addtabmenu(window) {
   if (!doc.getElementById(itemid)) {
     DEBUG && console.log(doc.getElementById("placesContext"));
     var menu = doc.getElementById("tabContextMenu");
-    var item = doc.createElementNS(xulns, "menuseparator");
-    item.setAttribute("id", "s-" + itemid);
-    menu.appendChild(item);
     item = doc.createElementNS(xulns, "menuitem");
-    item.setAttribute("label", label);
+    item.setAttribute("label", label("tab"));
     item.setAttribute("id", itemid);
     item.addEventListener("command", function(e) { pushURL(e.target.ownerDocument.popupNode.linkedBrowser.currentURI.spec); } );
     menu.appendChild(item);
@@ -111,27 +112,15 @@ exports.onUnload = function() {
     var doc = viewFor(window).document;
     var item = doc.getElementById(itemid);
     item && item.remove(); 
-    item = doc.getElementById("s-" + itemid);
-    item && item.remove();     
   }
 };
 
-// Recognize the API URL (only if we haven't already)
-if (prefs.api) {
-  checkAPI = false;
-  } else {
-  tabs.on('ready', function(tab) {
-    var turl = tab.url;
-    if (checkAPI) {
-      if (prefs.api) {
-        checkAPI = false;
-      }
-      else if (autoremote.test(turl)) {
-        setAPI(turl);
-      }
-    }
-  });
-};
+// Recognize the API URL on tab load
+tabs.on('ready', function(tab) {
+  if (!prefs.api && autoremote.test(tab.url)) {
+    setAPI(tab.url);
+  }
+});
 
 // Set the AutoRemote API URL
 function setAPI(apiurl) {
@@ -140,11 +129,11 @@ function setAPI(apiurl) {
     apiurl = apiurl.replace("http://", "https://");
   }
   prefs.api = apiurl;
-  button.icon = icons;            // enable our icon
-  button.label = label;
+  button.icon = enabled;
+  button.label = label("page");
   checkAPI = false;
   DEBUG && console.log("API set to " + prefs.api);
-  notify("Your AutoRemote API URL has been set and you may now push links and text from this browser to your Android device.");
+  pushnotify("Your AutoRemote API URL has been set and you may now push links and text from this browser to your Android device.");
 }
 
 // Get the AutoRemote API URL from the prefs
@@ -176,7 +165,7 @@ function pushURL(url) {
       try {
         request({url: api,
           onComplete: function() {
-            notify("A link has been pushed to your device.\n\n" + url.split("/").slice(0, 3).join("/") + "/ ...");
+            pushnotify("A link has been pushed to your device.\n\n" + url.split("/").slice(0, 3).join("/") + "/ ...");
             DEBUG && console.log("Pushed " + url);
           }
         }).get();
@@ -203,7 +192,7 @@ function pushText(text, cmd) {
           if (cred.password) api += "&password=" + encodeURIComponent(cred.password);
           request({url: api,
             onComplete: function() {
-              notify("Text has been pushed to your device.\n\n" + text.slice(0, 40) + "...");
+              pushnotify("Text has been pushed to your device.\n\n" + text.slice(0, 40) + "...");
               DEBUG && console.log("Pushed " + text);
             }
           }).get();
@@ -226,36 +215,50 @@ function pushText(text, cmd) {
   return true;
 }
 
-// Display a notification or, if that's turned off, flash our toolbar icon
+// Display a notification
 function notify(text) {
-  if (prefs.notify) {
     notifications.notify({
       title: myname,
       text: text,
       iconURL: "./icon-64.png"
     });
+}
+
+// Display a notification or flash our toolbar icon
+function pushnotify(text) {
+  if (prefs.notify) {
+    notify(text);
   } else {
-    flashIcon(button.icon, 5);
+    flash(button.icon, 5);
   }
 }
 
 // flash our toolbar icon
-function flashIcon(baseicon, flashes) {
-  button.icon = ((button.icon["16"] == baseicon["16"]) ? blank : baseicon); 
-  if (flashes) timers.setTimeout(function () { flashIcon(baseicon, flashes - 1); }, 250);
+function flash(icon, flashes) {
+  button.icon = ((button.icon["16"] == icon["16"]) ? blank : icon); 
+  if (flashes) timers.setTimeout(function () { flash(icon, flashes - 1); }, 250);
 }
 
 // return a string of bullets the same length as a string; may also pass integer
-function bullets(text) { return '\u2022'.repeat(text.length == undefined ? text : text.length); }
+function bullets(text) { return bullet.repeat(text.length == undefined ? text : text.length); }
 
+// stores reference to timer for masking password
 timer = null;
 
 // Store password securely as a credential; display mask of password in prefs
-// May I just mention for the record that an asynchronous password API is a giant pain?
+// May I just mention for the record that the password API is a giant pain?
 pref.on("password", function () {
   if (timer != null) timers.clearTimeout(timer);
   var pass = prefs.password;
-  if (!(pass && pass == bullets(pass))) {
+  // empty password field is OK
+  if (!pass) return;
+  // if there's a bullet, but it's not ALL bullets, remove all bullets
+  if (pass != bullets(pass) && pass.indexOf(bullet) + 1) {
+    prefs.pass = pass.replace(bullet, "");
+    return;
+  }
+  // mask and store after 2.5 sec of no typing
+  if (pass != bullets(pass)) {
     var store = function() { if (pass) passwords.store({realm: "AutoRemote API", username: "autoremote", password: pass}); }
     timer = timers.setTimeout(function() {
       passwords.search({
@@ -267,15 +270,14 @@ pref.on("password", function () {
           if (!creds.length) store();
           prefs.password = bullets(pass);
         }});
-    }, 3000);
+    }, 2500);
   }
 });
 
 // Handle editing of API URL in preferences
 pref.on("api", function() {
-  if (prefs.api && autoremote.test(prefs.api)) { 
-    setAPI(prefs.api);
-  } else {
+  if (!(prefs.api && autoremote.test(prefs.api))) { 
     prefs.api = "";   // only allow paste of valid API URL
   }
+  if (prefs.api == "") button.icon = disabled;
 });

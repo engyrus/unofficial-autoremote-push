@@ -52,8 +52,8 @@
     },
     {
         "name": "notify",
-        "title": "Desktop Notifications",
-        "description": "Show notifications on your desktop to confirm pushes and other actions.",
+        "title": "Push Notifications",
+        "description": "Confirm pushes with desktop notifications. (Errors are shown even if this is turned off.)",
         "type": "bool",
         "value": true
     }
