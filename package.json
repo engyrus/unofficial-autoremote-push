@@ -2,7 +2,7 @@
   "title": "AutoRemote Push (Unofficial)",
   "name": "unofficial-autoremote-push",
   "version": "1.0.3",
-  "description": "Pushes links and text to your Android device via AutoRemote using a toolbar button or the context menu. Not affiliated with João Dias (joaomgcd), author of AutoRemote.",
+  "description": "Pushes links and text to your Android device via AutoRemote using a toolbar button or the context menu.",
   "main": "index.js",
   "author": "Engyrus (Jerry Kindall)",
   "icon": "resource://@unofficial-autoremote-push/data/icon-64.png",
