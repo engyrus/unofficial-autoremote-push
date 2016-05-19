@@ -29,6 +29,7 @@ var xulns = "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul";
 var itemid = "unofficial-autoremote-push";
 var myname = "AutoRemote Push (Unoffical)";
 var bullet = '\u2022';
+var rbullet = RegExp(bullet, "g");
 
 // Used to identify personal AutoRemote page
 var autoremote = /^https?:\/\/autoremotejoaomgcd.appspot.com\/\?key=/;
@@ -50,7 +51,8 @@ var blank = {
 }
 
 function label(item) {
-  return "Push $ via AutoRemote".replace("$", item)
+  if (item) return "Push $ via AutoRemote".replace("$", item);
+  return "Push via AutoRemote";
 }
 
 // add toolbar button
@@ -118,22 +120,17 @@ exports.onUnload = function() {
 // Recognize the API URL on tab load
 tabs.on('ready', function(tab) {
   if (!prefs.api && autoremote.test(tab.url)) {
-    setAPI(tab.url);
+    prefs.api = makeAPI(tab.url);
   }
 });
 
 // Set the AutoRemote API URL
-function setAPI(apiurl) {
+function makeAPI(apiurl) {
   apiurl = apiurl.split("&")[0];
   if (prefs.secure) {
     apiurl = apiurl.replace("http://", "https://");
   }
-  prefs.api = apiurl;
-  button.icon = enabled;
-  button.label = label("page");
-  checkAPI = false;
-  DEBUG && console.log("API set to " + prefs.api);
-  pushnotify("Your AutoRemote API URL has been set and you may now push links and text from this browser to your Android device.");
+  return apiurl;
 }
 
 // Get the AutoRemote API URL from the prefs
@@ -157,7 +154,7 @@ function pushURL(url) {
   var api = getAPI();
   if (url && url.indexOf("about:") != 0) {
     if (autoremote.test(url)) {
-      setAPI(url);
+      prefs.api = makeAPI(url);
     } else if (api) {
       api = api.replace("/?", "/sendintent?") + "&intent=";
       api += encodeURIComponent(url);
@@ -253,8 +250,8 @@ pref.on("password", function () {
   // empty password field is OK
   if (!pass) return;
   // if there's a bullet, but it's not ALL bullets, remove all bullets
-  if (pass != bullets(pass) && pass.indexOf(bullet) + 1) {
-    prefs.pass = pass.replace(bullet, "");
+  if (pass.indexOf(bullet) + 1 && pass != bullets(pass)) {
+    prefs.password = pass.replace(rbullet, "");
     return;
   }
   // mask and store after 2.5 sec of no typing
@@ -276,10 +273,19 @@ pref.on("password", function () {
 
 // Handle editing of API URL in preferences
 pref.on("api", function() {
-  if (prefs.api && autoremote.test(prefs.api)) {
-    if (prefs.api.indexOf("&")) setAPI(prefs.api);
-  } else { 
+  if (autoremote.test(prefs.api)) {
+    if (prefs.api.indexOf("&") + 1) {
+      prefs.api = makeAPI(prefs.api);
+      return;
+    }
+  } else if (prefs.api) { 
     prefs.api = "";   // only allow paste of valid API URL
+    return;
   }
-  if (prefs.api == "") button.icon = disabled;
+  button.icon  = prefs.api ? enabled : disabled;
+  button.label = prefs.api ? label("page") : "Set AutoRemote API"; 
+  if (prefs.api) {
+    DEBUG && console.log("API set to " + prefs.api);
+    pushnotify("Your AutoRemote API URL has been set and you may now push links and text from this browser to your Android device.");
+  }
 });
