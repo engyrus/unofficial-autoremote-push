@@ -45,7 +45,7 @@
     },
     {
         "name": "secure",
-        "title": "Force Secure Pushes",
+        "title": "Force Secure Push",
         "description": "Always use secure connection to push links to AutoRemote (rewrites API URL as https if necessary).",
         "type": "bool",
         "value": true

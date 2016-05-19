@@ -276,7 +276,9 @@ pref.on("password", function () {
 
 // Handle editing of API URL in preferences
 pref.on("api", function() {
-  if (!(prefs.api && autoremote.test(prefs.api))) { 
+  if (prefs.api && autoremote.test(prefs.api)) {
+    if (prefs.api.indexOf("&")) setAPI(prefs.api);
+  } else { 
     prefs.api = "";   // only allow paste of valid API URL
   }
   if (prefs.api == "") button.icon = disabled;
