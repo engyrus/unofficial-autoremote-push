@@ -162,7 +162,7 @@ function pushURL(url) {
       try {
         request({url: api,
           onComplete: function() {
-            pushnotify("A link has been pushed to your device.\n\n" + url.split("/").slice(0, 3).join("/") + "/ ...");
+            optnotify("A link has been pushed to your device.\n\n" + url.split("/").slice(0, 3).join("/") + "/ ...");
             DEBUG && console.log("Pushed " + url);
           }
         }).get();
@@ -189,7 +189,7 @@ function pushText(text, cmd) {
           if (cred.password) api += "&password=" + encodeURIComponent(cred.password);
           request({url: api,
             onComplete: function() {
-              pushnotify("Text has been pushed to your device.\n\n" + text.slice(0, 40) + "...");
+              optnotify("Text has been pushed to your device.\n\n" + text.slice(0, 40) + "...");
               DEBUG && console.log("Pushed " + text);
             }
           }).get();
@@ -222,7 +222,7 @@ function notify(text) {
 }
 
 // Display a notification or flash our toolbar icon
-function pushnotify(text) {
+function optnotify(text) {
   if (prefs.notify) {
     notify(text);
   } else {
@@ -256,7 +256,9 @@ pref.on("password", function () {
   }
   // mask and store after 2.5 sec of no typing
   if (pass != bullets(pass)) {
-    var store = function() { if (pass) passwords.store({realm: "AutoRemote API", username: "autoremote", password: pass}); }
+    var store = function() { 
+      if (pass) passwords.store({realm: "AutoRemote API", username: "autoremote", password: pass});
+          }
     timer = timers.setTimeout(function() {
       passwords.search({
         url: self.uri, username: "autoremote",
@@ -266,6 +268,7 @@ pref.on("password", function () {
           }) });
           if (!creds.length) store();
           prefs.password = bullets(pass);
+          optnotify("Your API password has been securely stored in Firefox's Saved Logins."); 
         }});
     }, 2500);
   }
@@ -286,6 +289,6 @@ pref.on("api", function() {
   button.label = prefs.api ? label("page") : "Set AutoRemote API"; 
   if (prefs.api) {
     DEBUG && console.log("API set to " + prefs.api);
-    pushnotify("Your AutoRemote API URL has been set and you may now push links and text from this browser to your Android device.");
+    optnotify("Your AutoRemote API URL has been set and you may now push links and text from this browser to your Android device.");
   }
 });

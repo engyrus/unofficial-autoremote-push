@@ -18,7 +18,7 @@
     {
         "name": "api",
         "title": "AutoRemote API URL",
-        "description": "In this browser, open the goo.gl URL displayed by the AutoRemote app on your Android device, then paste your personal AutoRemote URL here. (This is filled in automagically the first time you visit your personal AutoRemote page.)",
+        "description": "In this browser, open the goo.gl URL displayed by the AutoRemote app on your Android device, then paste your personal AutoRemote URL here. This is filled in automagically the first time you visit your personal AutoRemote page.",
         "type": "string",
         "value": ""
     },
@@ -32,28 +32,28 @@
     {
         "name": "linkcmd",
         "title": "Command for Link Push",
-        "description": "The AutoApps command that will be used for pushing links to your Android device. Use a Tasker profile to react to this command. Leave blank to have the link opened in your mobile browser as usual.",
+        "description": "The AutoApps command that will be used for pushing links to your Android device. Use a Tasker profile to react to this command. Leave blank to open the link in your mobile browser.",
         "type": "string",
         "value": ""
     },
     {
         "name": "password",
         "title": "Password",
-        "description": "The password set for AutoRemote on your device, if any. Not required for normal link pushing. When changing, delete and retype.",
+        "description": "The AutoRemote password set on your device, if any. Not required for normal link pushing.",
         "type": "string",
         "value": ""
     },
     {
         "name": "secure",
         "title": "Force Secure Push",
-        "description": "Always use secure connection to push links to AutoRemote (rewrites API URL as https if necessary).",
+        "description": "Always use secure connection to push links to AutoRemote. Rewrites API URL as https.",
         "type": "bool",
         "value": true
     },
     {
         "name": "notify",
-        "title": "Push Notifications",
-        "description": "Confirm pushes with desktop notifications. (Errors are shown even if this is turned off.)",
+        "title": "Desktop Notifications",
+        "description": "Confirm pushes and other actions with desktop notifications. Errors are always shown.",
         "type": "bool",
         "value": true
     }
