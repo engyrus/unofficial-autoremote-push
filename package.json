@@ -1,7 +1,7 @@
 {
   "title": "AutoRemote Push (Unofficial)",
   "name": "unofficial-autoremote-push",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Pushes links and text to your Android device via AutoRemote using a toolbar button or the context menu.",
   "main": "index.js",
   "author": "Engyrus (Jerry Kindall)",
@@ -15,6 +15,27 @@
   ],
   "permissions": ["private-browsing", "tabs", "notifications"],
   "preferences": [
+    {
+        "name": "device",
+        "title": "Device",
+        "description": "This add-on supports up to five devices. You are changing settings for the device chosen here.",
+        "type": "radio",
+        "value": "D1",
+        "options": [{"value": "D1", "label": "1"},
+                    {"value": "D2", "label": "2"},
+                    {"value": "D3", "label": "3"},
+                    {"value": "D4", "label": "4"},
+                    {"value": "D5", "label": "5"}],
+        "hidden": true
+    },
+    {
+        "name": "name",
+        "title": "Device Name",
+        "description": "Name for the device selected above. Required if more than one device is configured.",
+        "type": "string",
+        "value": "",
+        "hidden": true
+    },
     {
         "name": "api",
         "title": "AutoRemote API URL",
@@ -46,16 +67,47 @@
     {
         "name": "secure",
         "title": "Force Secure Push",
-        "description": "Always use secure connection to push links to AutoRemote. Rewrites API URL as https.",
+        "description": "Always use secure connection to push links to AutoRemote. Rewrites API URL as https. This setting is not device-specific.",
         "type": "bool",
         "value": true
     },
     {
         "name": "notify",
         "title": "Desktop Notifications",
-        "description": "Confirm pushes and other actions with desktop notifications. Errors are always shown.",
+        "description": "Confirm pushes and other actions with desktop notifications. Errors are always shown. This setting is not device-specific.",
         "type": "bool",
         "value": true
-    }
+    },
+    
+    { "name": "nameD1", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "nameD2", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "nameD3", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "nameD4", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "nameD5", "title": "-", "type": "string", "value": "", "hidden": true },
+
+    { "name": "apiD1", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "apiD2", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "apiD3", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "apiD4", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "apiD5", "title": "-", "type": "string", "value": "", "hidden": true },
+
+    { "name": "textcmdD1", "title": "-", "type": "string", "value": "fftext", "hidden": true },
+    { "name": "textcmdD2", "title": "-", "type": "string", "value": "fftext", "hidden": true },
+    { "name": "textcmdD3", "title": "-", "type": "string", "value": "fftext", "hidden": true },
+    { "name": "textcmdD4", "title": "-", "type": "string", "value": "fftext", "hidden": true },
+    { "name": "textcmdD5", "title": "-", "type": "string", "value": "fftext", "hidden": true },
+    
+    { "name": "linkcmdD1", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "linkcmdD2", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "linkcmdD3", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "linkcmdD4", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "linkcmdD5", "title": "-", "type": "string", "value": "", "hidden": true },
+
+    { "name": "passwordD1", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "passwordD2", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "passwordD3", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "passwordD4", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "passwordD5", "title": "-", "type": "string", "value": "", "hidden": true }
+
   ]
 }

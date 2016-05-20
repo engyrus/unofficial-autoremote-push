@@ -91,7 +91,6 @@ contextMenu.Item({
 function addtabmenu(window) {
   var doc = viewFor(window).document;
   if (!doc.getElementById(itemid)) {
-    DEBUG && console.log(doc.getElementById("placesContext"));
     var menu = doc.getElementById("tabContextMenu");
     item = doc.createElementNS(xulns, "menuitem");
     item.setAttribute("label", label("tab"));
@@ -152,6 +151,7 @@ function getAPI() {
 function pushURL(url) {
   if (prefs.linkcmd) return pushText(url, prefs.linkcmd);
   var api = getAPI();
+  if (!api) return;
   if (url && url.indexOf("about:") != 0) {
     if (autoremote.test(url)) {
       prefs.api = makeAPI(url);
@@ -292,3 +292,19 @@ pref.on("api", function() {
     optnotify("Your AutoRemote API URL has been set and you may now push links and text from this browser to your Android device.");
   }
 });
+
+pref.on("device", function() {
+  try {
+    var dev = prefs.device;
+    DEBUG && console.log("selected device " + dev);
+    prefs.name = prefs["name"+dev];
+    prefs.api = prefs["api"+dev];
+    prefs.textcmd = prefs["textcmd"+dev];
+    prefs.linkcmd = prefs["linkcmd"+dev];
+    prefs.password = prefs["password"+dev];
+  } catch (e) { DEBUG && console.log(e); }
+});
+
+DEBUG && console.log("initialized");
+DEBUG && console.log(prefs.device);
+// DEBUG && console.log(doc.getElementById("placesContext"));
