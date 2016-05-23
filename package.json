@@ -125,7 +125,9 @@
     { "name": "password_5", "title": "-", "type": "string", "value": "", "hidden": true },
     { "name": "password_6", "title": "-", "type": "string", "value": "", "hidden": true },
     { "name": "password_7", "title": "-", "type": "string", "value": "", "hidden": true },
-    { "name": "password_8", "title": "-", "type": "string", "value": "", "hidden": true }
+    { "name": "password_8", "title": "-", "type": "string", "value": "", "hidden": true },
+    
+    { "name": "version", "title": "-", "type": "integer", "value": 0, "hidden": true }
 
   ]
 }

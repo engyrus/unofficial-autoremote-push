@@ -9,6 +9,9 @@
 // Not affiliated with João Dias, author of AutoRemote
 
 // TODOS: finish multi-device support
+//        - store/retrieve correct password in credential store
+//        - option to choose device from context submenu
+//        - multiple toolbar buttons to choose 
 //        add context menu item to Places context menu
 
 DEBUG = false;
@@ -324,3 +327,26 @@ pref.on("name", function() {
 DEBUG && console.log("initialized");
 DEBUG && console.log("selected device " + prefs.device.slice(1));
 // DEBUG && console.log(doc.getElementById("placesContext"));
+
+// handle preferences upgrade: copy settings to device 1
+if (prefs.version == 0) {
+  prefs.name_1 = "Default Device";
+  prefs.api_1  = prefs.api;
+  prefs.textcmd_1 = prefs.txtcmd;
+  prefs.linkcmd_1 = prefs.linkcmd;
+  prefs.password_1 = prefs.password;
+  passwords.search({
+    url: self.uri, username: "autoremote",
+    onComplete: function (creds) {
+      creds.forEach(function (cred) { passwords.remove({
+        realm: cred.realm, username: cred.username, password: cred.password, 
+        onComplete: function() {
+          passwords.store({cred.realm, username: "autoremote_1", cred.password});
+          }
+        }
+      }) });
+    }});
+  prefs.version = 1;
+  DEBUG && console.log("upgraded preferences to version " + prefs.version);
+}
+
