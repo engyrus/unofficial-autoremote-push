@@ -8,7 +8,8 @@
 
 // Not affiliated with João Dias, author of AutoRemote
 
-// TODOS: add context menu item to Places context menu
+// TODOS: finish multi-device support
+//        add context menu item to Places context menu
 
 DEBUG = false;
 
@@ -149,7 +150,7 @@ function getAPI() {
 
 // Push a URL to the device
 function pushURL(url) {
-  if (prefs.linkcmd) return pushText(url, prefs.linkcmd);
+  if (prefs.linkcmd) return pushText(url, prefs.linkcmd, "A link");
   var api = getAPI();
   if (!api) return;
   if (url && url.indexOf("about:") != 0) {
@@ -158,7 +159,6 @@ function pushURL(url) {
     } else if (api) {
       api = api.replace("/?", "/sendintent?") + "&intent=";
       api += encodeURIComponent(url);
-      if (prefs.password) api += "&password=" + encodeURIComponent(prefs.password);
       try {
         request({url: api,
           onComplete: function() {
@@ -167,7 +167,7 @@ function pushURL(url) {
           }
         }).get();
       } catch (e) {
-        notify("ERROR pushing a link to your device.\n\n" + url.split("/").slice(0, 3).join("/") + "/ ...");
+        notify("ERROR pushing to your device.\n\n" + url.split("/").slice(0, 3).join("/") + "/ ...");
         DEBUG && console.log("Error pushing " + url + '\n\n' + e);      
       }
     }
@@ -178,8 +178,9 @@ function pushURL(url) {
 }
 
 // Push text to the device. Optional cmd may be passed (for pushing links using the messaging API)
-function pushText(text, cmd) {
+function pushText(text, cmd, what) {
   var api = getAPI();
+  what == what || "Text";
   if (text) {
     if (api) {
       send = function (cred) {
@@ -189,13 +190,13 @@ function pushText(text, cmd) {
           if (cred.password) api += "&password=" + encodeURIComponent(cred.password);
           request({url: api,
             onComplete: function() {
-              optnotify("Text has been pushed to your device.\n\n" + text.slice(0, 40) + "...");
+              optnotify(what + " has been pushed to your device.\n\n" + text.slice(0, 40) + "...");
               DEBUG && console.log("Pushed " + text);
             }
           }).get();
         } catch (e) {
-          notify("ERROR pushing a link to your device.\n\n" + url.split("/").slice(0, 3).join("/") + "/ ...");
-          DEBUG && console.log("Error pushing " + url + '\n\n' + e);      
+          notify("ERROR pushing to your device.\n\n" + text.slice(0, 40) + "/ ...");
+          DEBUG && console.log("Error pushing " + text + '\n\n' + e);      
         }
       };
       if (prefs.password) {   // retrieve the shadowed password
@@ -287,6 +288,8 @@ pref.on("api", function() {
   }
   button.icon  = prefs.api ? enabled : disabled;
   button.label = prefs.api ? label("page") : "Set AutoRemote API"; 
+  var dev = prefs.device;
+  prefs["api"+dev] = prefs.api;
   if (prefs.api) {
     DEBUG && console.log("API set to " + prefs.api);
     optnotify("Your AutoRemote API URL has been set and you may now push links and text from this browser to your Android device.");
@@ -294,17 +297,30 @@ pref.on("api", function() {
 });
 
 pref.on("device", function() {
-  try {
-    var dev = prefs.device;
-    DEBUG && console.log("selected device " + dev);
-    prefs.name = prefs["name"+dev];
-    prefs.api = prefs["api"+dev];
-    prefs.textcmd = prefs["textcmd"+dev];
-    prefs.linkcmd = prefs["linkcmd"+dev];
-    prefs.password = prefs["password"+dev];
-  } catch (e) { DEBUG && console.log(e); }
+  var dev = prefs.device;
+  DEBUG && console.log("selected device " + dev.slice(1));
+  prefs.name = prefs["name"+dev];
+  prefs.api = prefs["api"+dev];
+  prefs.textcmd = prefs["textcmd"+dev];
+  prefs.linkcmd = prefs["linkcmd"+dev];
+  prefs.password = prefs["password"+dev];
+});
+
+pref.on("name", function() {
+ var dev = prefs.device;
+ prefs["name"+dev] = prefs.name;
+});
+
+pref.on("textcmd", function() {
+ var dev = prefs.device;
+ prefs["textcmd"+dev] = prefs.textcmd;
+});
+
+pref.on("name", function() {
+ var dev = prefs.device;
+ prefs["linkcmd"+dev] = prefs.linkcmd;
 });
 
 DEBUG && console.log("initialized");
-DEBUG && console.log(prefs.device);
+DEBUG && console.log("selected device " + prefs.device.slice(1));
 // DEBUG && console.log(doc.getElementById("placesContext"));
