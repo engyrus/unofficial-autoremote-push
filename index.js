@@ -11,7 +11,7 @@
 // TODOS: finish multi-device support
 //        - store/retrieve correct password in credential store
 //        - option to choose device from context submenu
-//        - multiple toolbar buttons to choose 
+//        - multiple toolbar buttons to choose from 
 //        add context menu item to Places context menu
 
 DEBUG = false;
@@ -332,7 +332,7 @@ DEBUG && console.log("selected device " + prefs.device.slice(1));
 if (prefs.version == 0) {
   prefs.name_1 = "Default Device";
   prefs.api_1  = prefs.api;
-  prefs.textcmd_1 = prefs.txtcmd;
+  prefs.textcmd_1 = prefs.textcmd;
   prefs.linkcmd_1 = prefs.linkcmd;
   prefs.password_1 = prefs.password;
   passwords.search({
@@ -341,11 +341,12 @@ if (prefs.version == 0) {
       creds.forEach(function (cred) { passwords.remove({
         realm: cred.realm, username: cred.username, password: cred.password, 
         onComplete: function() {
-          passwords.store({cred.realm, username: "autoremote_1", cred.password});
+          passwords.store({realm: cred.realm, username: "autoremote_1", password: cred.password} );
           }
-        }
-      }) });
-    }});
+        });
+      });
+    } 
+  });
   prefs.version = 1;
   DEBUG && console.log("upgraded preferences to version " + prefs.version);
 }
