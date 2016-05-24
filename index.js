@@ -330,7 +330,7 @@ DEBUG && console.log("selected device " + prefs.device.slice(1));
 
 // handle preferences upgrade: copy settings to device 1
 if (prefs.version == 0) {
-  prefs.nom_1 = "Default Device";
+  prefs.nom = prefs.nom_1 = "Default Device";
   prefs.api_1  = prefs.api;
   prefs.textcmd_1 = prefs.textcmd;
   prefs.linkcmd_1 = prefs.linkcmd;
