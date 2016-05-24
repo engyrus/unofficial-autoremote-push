@@ -32,7 +32,7 @@
         "hidden": false
     },
     {
-        "name": "name",
+        "name": "nom",
         "title": "Device Name",
         "description": "Name for the device selected above. Required if more than one device is configured.",
         "type": "string",
@@ -82,14 +82,14 @@
         "value": true
     },
     
-    { "name": "name_1", "title": "-", "type": "string", "value": "", "hidden": true },
-    { "name": "name_2", "title": "-", "type": "string", "value": "", "hidden": true },
-    { "name": "name_3", "title": "-", "type": "string", "value": "", "hidden": true },
-    { "name": "name_4", "title": "-", "type": "string", "value": "", "hidden": true },
-    { "name": "name_5", "title": "-", "type": "string", "value": "", "hidden": true },
-    { "name": "name_6", "title": "-", "type": "string", "value": "", "hidden": true },
-    { "name": "name_7", "title": "-", "type": "string", "value": "", "hidden": true },
-    { "name": "name_8", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "nom_1", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "nom_2", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "nom_3", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "nom_4", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "nom_5", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "nom_6", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "nom_7", "title": "-", "type": "string", "value": "", "hidden": true },
+    { "name": "nom_8", "title": "-", "type": "string", "value": "", "hidden": true },
 
     { "name": "api_1", "title": "-", "type": "string", "value": "", "hidden": true },
     { "name": "api_2", "title": "-", "type": "string", "value": "", "hidden": true },
