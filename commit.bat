@@ -1,6 +1,10 @@
 @echo off
+set secs=2
 git status
 set /p msg=Commit message: 
-set msg=%msg:^"=""%
+setlocal enabledelayedexpansion
+set msg=!msg:"=!
+echo %msg%
 git add --all
-git commit -m "%msg%" || timeout /t 60
+git commit --message "%msg%" || set secs=60
+timeout /t %secs%
