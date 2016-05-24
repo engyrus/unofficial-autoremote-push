@@ -1,1 +1,1 @@
-jpm xpi
+jpm xpi || timeout /t 60
