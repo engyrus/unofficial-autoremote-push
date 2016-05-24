@@ -124,10 +124,12 @@ exports.onUnload = function() {
 tabs.on('ready', function(tab) {
   if (!prefs.api && autoremote.test(tab.url)) {
     prefs.api = makeAPI(tab.url);
+    DEBUG && console.log("API set to " + prefs.api);
+    optnotify("Your AutoRemote API URL has been set and you may now push links and text from this browser to your Android device.");
   }
 });
 
-// Set the AutoRemote API URL
+// Fix up the AutoRemote API URL
 function makeAPI(apiurl) {
   apiurl = apiurl.split("&")[0];
   if (prefs.secure) {
@@ -293,10 +295,6 @@ pref.on("api", function() {
   button.label = prefs.api ? label("page") : "Set AutoRemote API"; 
   var dev = prefs.device;
   prefs["api"+dev] = prefs.api;
-  if (prefs.api) {
-    DEBUG && console.log("API set to " + prefs.api);
-    optnotify("Your AutoRemote API URL has been set and you may now push links and text from this browser to your Android device.");
-  }
 });
 
 pref.on("device", function() {
