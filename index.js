@@ -9,8 +9,8 @@
 // Not affiliated with João Dias, author of AutoRemote
 
 // TODOS: finish multi-device support
-//        - option to choose device from context submenu
-//        - multiple toolbar buttons to choose from 
+//        - choose desired device from context submenu
+//        - multiple toolbar buttons to choose from? 
 //        add context menu item to Places context menu
 
 DEBUG = false;
@@ -331,9 +331,9 @@ DEBUG && console.log("selected device " + prefs.device.slice(1));
 if (prefs.version == 0) {
   prefs.nom = prefs.nom_1 = "Android Device";
   prefs.api_1  = prefs.api;
-  prefs.textcmd_1 = prefs.textcmd;
-  prefs.linkcmd_1 = prefs.linkcmd;
-  prefs.password_1 = prefs.password;
+  prefs.textcmd_1 = prefs.textcmd || "fftext" ;
+  prefs.linkcmd_1 = prefs.linkcmd || "";
+  prefs.password_1 = prefs.password || "";
   passwords.search({
     url: self.uri, username: "autoremote",
     onComplete: function (creds) {
