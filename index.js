@@ -9,7 +9,6 @@
 // Not affiliated with João Dias, author of AutoRemote
 
 // TODOS: finish multi-device support
-//        - store/retrieve correct password in credential store
 //        - option to choose device from context submenu
 //        - multiple toolbar buttons to choose from 
 //        add context menu item to Places context menu
@@ -260,14 +259,14 @@ pref.on("password", function () {
     prefs.password = pass.replace(rbullet, "");
     return;
   }
-  // mask and store after 2.5 sec of no typing
+  // mask and store passsword after 2.5 sec of no typing
   if (pass != bullets(pass)) {
     var store = function() { 
-      if (pass) passwords.store({realm: "AutoRemote API", username: "autoremote", password: pass});
+      if (pass) passwords.store({realm: "AutoRemote API", username: "device" + prefs.device , password: pass});
           }
     timer = timers.setTimeout(function() {
       passwords.search({
-        url: self.uri, username: "autoremote",
+        url: self.uri, username: "device" + prefs.device,
         onComplete: function (creds) {
           creds.forEach(function (cred) { passwords.remove({
             realm: cred.realm, username: cred.username, password: cred.password, onComplete: store
@@ -341,7 +340,7 @@ if (prefs.version == 0) {
       creds.forEach(function (cred) { passwords.remove({
         realm: cred.realm, username: cred.username, password: cred.password, 
         onComplete: function() {
-          passwords.store({realm: cred.realm, username: "autoremote_1", password: cred.password} );
+          passwords.store({realm: cred.realm, username: "device_1", password: cred.password} );
           }
         });
       });
