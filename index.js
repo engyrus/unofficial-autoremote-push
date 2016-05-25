@@ -64,8 +64,7 @@ button = buttons.ActionButton({
   label: prefs.api ? label("page") : "Set AutoRemote API",
   id: "b-" + itemid,
   icon: prefs.api ? enabled : disabled,
-  onClick: function () { pushURL(tabs.activeTab.url);
-  badge: prefs.device.slice(1); }
+  onClick: function () { pushURL(tabs.activeTab.url); }
 });
 
 // add context menu for links and images
@@ -296,7 +295,6 @@ pref.on("api", function() {
   button.label = prefs.api ? label("page") : "Set AutoRemote API"; 
   var dev = prefs.device;
   prefs["api"+dev] = prefs.api;
-  button.badge = dev.slice(1);
 });
 
 pref.on("device", function() {
@@ -309,7 +307,6 @@ pref.on("device", function() {
   prefs.password = prefs["password"+dev];
   button.icon  = prefs.api ? enabled : disabled;
   button.label = prefs.api ? label("page") : "Set AutoRemote API";
-  button.badge = dev.slice(1);
 });
 
 pref.on("nom", function() {
