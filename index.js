@@ -84,7 +84,7 @@ contextMenu.Item({
 
 // add context menu for selection
 contextMenu.Item({
-  label: label("text"),
+  label: label("selected text"),
   context: contextMenu.SelectionContext(),
   contentScript: 'self.on("click", function(node) { self.postMessage(window.getSelection().toString()) })',
   onMessage: pushText
