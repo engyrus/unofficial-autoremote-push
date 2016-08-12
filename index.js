@@ -246,6 +246,8 @@ function bullets(text) { return bullet.repeat(text.length == undefined ? text : 
 
 // stores reference to timer for masking password
 timer = null;
+timerfunc = null;
+
 
 // Store password securely as a credential; display mask of password in prefs
 // May I just mention for the record that the password API is a giant pain?
@@ -261,21 +263,27 @@ pref.on("password", function () {
   }
   // mask and store passsword after 2.5 sec of no typing
   if (pass != bullets(pass)) {
+    var dev  = prefs.device;
     var store = function() { 
-      if (pass) passwords.store({realm: "AutoRemote API", username: "device" + prefs.device , password: pass});
+      if (pass) passwords.store({realm: "AutoRemote API", username: "device" + dev, password: pass});
           }
-    timer = timers.setTimeout(function() {
+    var setpass = function() {
       passwords.search({
-        url: self.uri, username: "device" + prefs.device,
+        url: self.uri, username: "device" + dev,
         onComplete: function (creds) {
           creds.forEach(function (cred) { passwords.remove({
             realm: cred.realm, username: cred.username, password: cred.password, onComplete: store
           }) });
           if (!creds.length) store();
-          prefs.password = bullets(pass);
-          optnotify("Your API password has been securely stored in Firefox's Saved Logins."); 
+          prefs["password"+dev] = bullets(pass);
+          if (prefs.device == dev) prefs.password = bullets(pass);
+          optnotify("Your API password has been securely stored in Firefox's Saved Logins.");
+          timerfunc = null;
+          timer = null;
         }});
-    }, 2500);
+    }
+    timerfunc = setpass;
+    timer = timers.setTimeout(setpass, 2500);
   }
 });
 
@@ -297,6 +305,14 @@ pref.on("api", function() {
 });
 
 pref.on("device", function() {
+  // first order of business: if we're currently waiting to store a password,
+  // store it before switching devices.  There is a tiny chance that this could
+  // result in the password being stored twice, but it doesn't matter since the
+  // same password would be stored both times.
+  if (timer != null) {
+    timers.clearInterval(timer);
+    timerfunc && timerfunc();
+  }
   var dev = prefs.device;
   DEBUG && console.log("selected device " + dev.slice(1));
   prefs.nom = prefs["nom"+dev];

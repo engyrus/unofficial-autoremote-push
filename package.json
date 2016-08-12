@@ -1,7 +1,7 @@
 {
   "title": "AutoRemote Push (Unofficial)",
   "name": "unofficial-autoremote-push",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Pushes links and text to your Android device via AutoRemote using a toolbar button or the context menu.",
   "main": "index.js",
   "author": "Engyrus (Jerry Kindall)",
