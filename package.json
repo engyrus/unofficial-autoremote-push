@@ -68,13 +68,6 @@
         "value": ""
     },
     {
-        "name": "secure",
-        "title": "Force Secure Push",
-        "description": "Always use secure connection to push links to AutoRemote. Rewrites API URL as https. This setting is not device-specific.",
-        "type": "bool",
-        "value": true
-    },
-    {
         "name": "notify",
         "title": "Desktop Notifications",
         "description": "Confirm pushes and other actions with desktop notifications. Errors are always shown. This setting is not device-specific.",

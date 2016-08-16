@@ -131,9 +131,7 @@ tabs.on('ready', function(tab) {
 // Fix up the AutoRemote API URL
 function makeAPI(apiurl) {
   apiurl = apiurl.split("&")[0];
-  if (prefs.secure) {
-    apiurl = apiurl.replace("http://", "https://");
-  }
+  apiurl = apiurl.replace("http://", "https://");
   return apiurl;
 }
 
@@ -141,9 +139,9 @@ function makeAPI(apiurl) {
 function getAPI() {
   var api = prefs.api;
   if (api) {
-    if (prefs.secure && api.indexOf("https://") != 0) {
+    if (api.indexOf("https://") != 0) {
       api = api.replace("http://", "https://");
-      prefs.api = api;  
+      prefs.api = api;
     }
   } else {
       DEBUG && console.log("API URL not defined");
